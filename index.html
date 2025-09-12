@@ -135,10 +135,10 @@
             const weatherEmoji = document.createElement("p");
             
             cityDisplay.textContent = city;
-            tempDisplay.textcontent = `${(temp - 273.15).toFixed(1)}°C`;
+            tempDisplay.textContent = `${(temp - 273.15).toFixed(1)}°C`;
             humidityDisplay.textContent = `Humidity: ${humidity}%`;
             descDisplay.textContent = description;
-            weatherEmoji.textcontent = getWeatherEmoji(id);
+            weatherEmoji.textContent = getWeatherEmoji(id);
             
             cityDisplay.classList.add("cityDisplay");
             tempDisplay.classList.add("tempDisplay");
@@ -186,4 +186,5 @@
 </body>
 
 </html>
+
 
