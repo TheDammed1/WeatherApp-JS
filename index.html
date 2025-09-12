@@ -89,13 +89,7 @@
         <button type = "submit">Get Weather</button>
     </form>
 
-    <div class = "card" style = "display: none">
-        <h1 class="cityDisplay">Ranchi</h1>
-        <p class="tempDisplay">30°C</p>
-        <p class="humidityDisplay">Humidity: 40%</p>
-        <p class="descDisplay">Clear Skies</p>
-        <p class="weatherDisplay">☀</p>
-        <p class="tempDisplay">30°C</p>
+    <div class = "card" style = "display: none">  
     </div>
     <script>
         const weatherForm = document.querySelector(".weatherForm");
@@ -138,16 +132,19 @@
             const humidityDisplay = document.createElement("p");
             const descDisplay = document.createElement("p");
             const weatherEmoji = document.createElement("p");
+            
             cityDisplay.textContent = city;
             tempDisplay.textcontent = `${(temp - 273.15).toFixed(1)}°C`;
             humidityDisplay.textContent = `Humidity: ${humidity}%`;
             descDisplay.textContent = description;
             weatherEmoji.textcontent = getWeatherEmoji(id);
+            
             cityDisplay.classList.add("cityDisplay");
             tempDisplay.classList.add("tempDisplay");
             humidityDisplay.classList.add("humidityDisplay");
             descDisplay.classList.add("descDisplay");
             weatherEmoji.classList.add("weatherEmoji");
+            
             card.appendChild(cityDisplay);
             card.appendChild(tempDisplay);
             card.appendChild(humidityDisplay);
@@ -186,4 +183,5 @@
     </script>
 
 </body>
+
 </html>
