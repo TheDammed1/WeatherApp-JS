@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        body {
+            
+            font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+        .weatherForm{
+            margin: 20px;
+        }
+        .cityInput{
+            padding: 10px;
+            font-size: 2rem;
+            font-weight: bold;
+            border: 2px solid black;
+            border-radius: 10px;
+            margin: 10px;
+            width: 300px;
+        }
+        button[type="submit"] {
+            padding: 10px 15px;
+            font-weight: bold;
+            font-size: 2rem;
+            background-color: hsl(0, 0%, 7%);
+            color: rgb(245, 245, 245);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button[type="submit"]:hover {
+            background-color: hsl(180, 1%, 43%);
+            transform: scale(1.05);
+        }
+        .card{
+            background: transparent;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 2px 2px 5px black;
+            min-width: 300px;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+        .card.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        h1{
+            font-size: 3.5rem;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+        p{
+            font-size: 1.5rem;
+            margin: 5px 0;
+        }
+        .cityDisplay, .tempDisplay{
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: blwhitesmokeack;
+            margin-bottom: 25px;
+        }
+        .humidityDisplay{
+            font-weight: bold;
+            margin-bottom: 25px;
+        }
+        .descDisplay{
+            font-style: italic;
+            font-weight: bold;
+            font-size: 2rem;
+        }
+        .cityDisplay, .tempDisplay, .humidityDisplay, .descDisplay {
+            animation: fadeIn 1s ease forwards;
+            opacity: 0;
+        }
+        .cityDisplay { animation-delay: 0.2s; }
+        .tempDisplay { animation-delay: 0.4s; }
+        .humidityDisplay { animation-delay: 0.6s; }
+        .descDisplay { animation-delay: 0.8s; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .weatherEmoji{
+            margin: 0;
+            font-size: 6rem;
+            animation: bounce 1s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .errorDisplay{
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: whitesmoke;
+        }
+        .home {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: whitesmoke;
+        }
+        #bgVideo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;       /* stretch full width */
+            height: 100%;      /* stretch full height */
+            object-fit: cover; /* makes sure video fills without distortion */
+            z-index: -1;       /* keep it behind content */
+        }
+    </style>
+</head>
+<body>
+    
+    <video autoplay muted loop id="bgVideo">
+    <source src="1.mp4" type="video/mp4">
+    </video>
+
+
+    <header class="home">
+    <h1>🌦 Welcome to WeatherTeller</h1>
+    <p>Get real-time weather updates for any city in the world.</p>        
+
+    <form class = "weatherForm">
+        <input type = "text" class = "cityInput" placeholder = "Enter city">
+        <button type = "submit">🔍</button>
+    </form>
+
+    <div class = "card" style = "display: none">
+    </div>
+
+    <script>
+        const weatherForm = document.querySelector(".weatherForm");
+        const cityInput = document.querySelector(".cityInput");
+        const card = document.querySelector(".card");
+        const apiKey = "38c707c3b228233ef5307fd95c5aea56";
+
+        weatherForm.addEventListener("submit", async event => {
+            event.preventDefault();
+            const city = cityInput.value;
+            if(city){
+                try{
+                    const weatherData = await getWeatherData(city);
+                    displayWeatherInfo(weatherData); 
+                }
+                catch(error){
+                    console.log(error);
+                    displayError(error);
+                }
+            }else{
+                displayError("Please enter a city");
+            }
+        });
+
+        async function getWeatherData(city){
+            const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`;
+            const response = await fetch(apiUrl);
+            if(!response.ok){
+                throw new Error("Could not fetch weather data");
+            }
+            return await response.json();
+        }
+
+        function displayWeatherInfo(data){
+            const {name: city, main: {temp, humidity}, weather: [{description, id}]} = data;
+            card.textContent = "";
+            card.style.display = "flex";
+            card.classList.add("show");   
+
+            const cityDisplay = document.createElement("h1");
+            const tempDisplay = document.createElement("p");
+            const humidityDisplay = document.createElement("p");
+            const descDisplay = document.createElement("p");
+            const weatherEmoji = document.createElement("p");
+
+            cityDisplay.textContent = city;
+            tempDisplay.textContent = `${(temp - 273.15).toFixed(1)}°C`;
+            humidityDisplay.textContent = `Humidity: ${humidity}%`;
+            descDisplay.textContent = description;
+            weatherEmoji.textContent = getWeatherEmoji(id);
+
+            cityDisplay.classList.add("cityDisplay");
+            tempDisplay.classList.add("tempDisplay");
+            humidityDisplay.classList.add("humidityDisplay");
+            descDisplay.classList.add("descDisplay");
+            weatherEmoji.classList.add("weatherEmoji");
+            
+            card.appendChild(cityDisplay);
+            card.appendChild(tempDisplay);
+            card.appendChild(humidityDisplay);
+            card.appendChild(descDisplay);
+            card.appendChild(weatherEmoji);
+        }
+
+        function getWeatherEmoji(weatherId){
+            switch(true){
+                case(weatherId >= 200 && weatherId <300):
+                    return "⛈";
+                case(weatherId >= 300 && weatherId <400):
+                    return "🌧";
+                case(weatherId >= 500 && weatherId <600):
+                    return "🌧";
+                case(weatherId >= 600 && weatherId <700):
+                    return "❄";
+                case(weatherId >= 700 && weatherId <800):
+                    return "🌫";
+                case(weatherId === 800):
+                    return "☀";
+                case(weatherId >= 801 && weatherId <810):
+                    return "☁";
+                default:
+                    return "?";
+            }
+        }
+        function displayError(message){
+            const errorDisplay = document.createElement("p");
+            errorDisplay.textContent = message;
+            errorDisplay.classList.add("errorDisplay");
+            card.textContent = "";
+            card.style.display = "flex";
+            card.appendChild(errorDisplay);
+        }
+    </script>
+
+</body>
+</html>
